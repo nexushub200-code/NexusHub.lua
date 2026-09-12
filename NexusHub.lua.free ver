@@ -1,0 +1,942 @@
+--// NEXUS HUB
+
+local Players=game:GetService("Players")
+local TweenService=game:GetService("TweenService")
+local UserInputService=game:GetService("UserInputService")
+
+local Player=Players.LocalPlayer
+local PlayerGui=Player:WaitForChild("PlayerGui")
+
+local BG=Color3.fromRGB(18,16,30)
+local PANEL=Color3.fromRGB(25,22,40)
+local PANEL2=Color3.fromRGB(31,27,48)
+local PURPLE=Color3.fromRGB(150,65,255)
+local PURPLE2=Color3.fromRGB(180,110,255)
+local TEXT=Color3.fromRGB(235,230,255)
+local SUB=Color3.fromRGB(165,155,190)
+
+--// LOADING
+
+local LG=Instance.new("ScreenGui",PlayerGui)
+LG.Name="NexusLoading"
+LG.ResetOnSpawn=false
+
+local LP=Instance.new("Frame",LG)
+LP.Size=UDim2.fromOffset(300,75)
+LP.Position=UDim2.new(.5,-150,0,12)
+LP.BackgroundColor3=Color3.fromRGB(30,26,48)
+LP.BorderSizePixel=0
+Instance.new("UICorner",LP).CornerRadius=UDim.new(0,10)
+
+local LS=Instance.new("UIStroke",LP)
+LS.Color=PURPLE
+LS.Transparency=.55
+
+local LT=Instance.new("TextLabel",LP)
+LT.Size=UDim2.new(1,-20,0,20)
+LT.Position=UDim2.fromOffset(10,7)
+LT.BackgroundTransparency=1
+LT.Text="NEXUS HUB LOADING..."
+LT.TextColor3=TEXT
+LT.TextSize=13
+LT.Font=Enum.Font.GothamBold
+LT.TextXAlignment=Enum.TextXAlignment.Left
+LT.Parent=LP
+
+local LTrack=Instance.new("Frame",LP)
+LTrack.Size=UDim2.new(1,-20,0,16)
+LTrack.Position=UDim2.fromOffset(10,32)
+LTrack.BackgroundColor3=BG
+LTrack.BorderSizePixel=0
+Instance.new("UICorner",LTrack).CornerRadius=UDim.new(0,8)
+
+local LFill=Instance.new("Frame",LTrack)
+LFill.Size=UDim2.new(0,0,1,0)
+LFill.BackgroundColor3=PURPLE
+LFill.BorderSizePixel=0
+Instance.new("UICorner",LFill).CornerRadius=UDim.new(0,8)
+
+local LPct=Instance.new("TextLabel",LP)
+LPct.Size=UDim2.new(1,-20,0,18)
+LPct.Position=UDim2.fromOffset(10,52)
+LPct.BackgroundTransparency=1
+LPct.Text="0%"
+LPct.TextColor3=TEXT
+LPct.TextSize=11
+LPct.Font=Enum.Font.GothamSemibold
+LPct.TextXAlignment=Enum.TextXAlignment.Left
+LPct.Parent=LP
+
+--// UI
+
+local function CreateUI()
+
+local Gui=Instance.new("ScreenGui",PlayerGui)
+Gui.Name="NexusHub"
+Gui.ResetOnSpawn=false
+
+local Window=Instance.new("Frame",Gui)
+Window.Size=UDim2.fromOffset(420,270)
+Window.Position=UDim2.new(.5,-210,.5,-135)
+Window.BackgroundColor3=BG
+Window.BorderSizePixel=0
+Window.ClipsDescendants=true
+Instance.new("UICorner",Window).CornerRadius=UDim.new(0,12)
+
+local WS=Instance.new("UIStroke",Window)
+WS.Color=PURPLE
+WS.Transparency=.2
+
+--// TOP
+
+local Top=Instance.new("Frame",Window)
+Top.Size=UDim2.new(1,0,0,43)
+Top.BackgroundColor3=PANEL
+Top.BorderSizePixel=0
+Instance.new("UICorner",Top).CornerRadius=UDim.new(0,12)
+
+local Logo=Instance.new("TextLabel",Top)
+Logo.Size=UDim2.fromOffset(32,32)
+Logo.Position=UDim2.fromOffset(8,5)
+Logo.BackgroundColor3=PURPLE
+Logo.Text="N"
+Logo.TextColor3=Color3.new(1,1,1)
+Logo.TextSize=19
+Logo.Font=Enum.Font.GothamBold
+Logo.Parent=Top
+Instance.new("UICorner",Logo).CornerRadius=UDim.new(0,8)
+
+local Title=Instance.new("TextLabel",Top)
+Title.Size=UDim2.fromOffset(170,20)
+Title.Position=UDim2.fromOffset(48,5)
+Title.BackgroundTransparency=1
+Title.Text="Nexus Hub"
+Title.TextColor3=TEXT
+Title.TextSize=16
+Title.Font=Enum.Font.GothamBold
+Title.TextXAlignment=Enum.TextXAlignment.Left
+Title.Parent=Top
+
+local Version=Instance.new("TextLabel",Top)
+Version.Size=UDim2.fromOffset(130,15)
+Version.Position=UDim2.fromOffset(49,24)
+Version.BackgroundTransparency=1
+Version.Text="v1.0.0 • Nexus"
+Version.TextColor3=SUB
+Version.TextSize=8
+Version.Font=Enum.Font.Gotham
+Version.TextXAlignment=Enum.TextXAlignment.Left
+Version.Parent=Top
+
+local Min=Instance.new("TextButton",Top)
+Min.Size=UDim2.fromOffset(30,30)
+Min.Position=UDim2.new(1,-68,0,6)
+Min.BackgroundColor3=PANEL2
+Min.Text="—"
+Min.TextColor3=PURPLE2
+Min.TextSize=17
+Min.Font=Enum.Font.GothamBold
+Min.AutoButtonColor=false
+Min.Parent=Top
+Instance.new("UICorner",Min).CornerRadius=UDim.new(1,0)
+
+local Close=Instance.new("TextButton",Top)
+Close.Size=UDim2.fromOffset(30,30)
+Close.Position=UDim2.new(1,-34,0,6)
+Close.BackgroundColor3=PANEL2
+Close.Text="×"
+Close.TextColor3=TEXT
+Close.TextSize=20
+Close.Font=Enum.Font.Gotham
+Close.AutoButtonColor=false
+Close.Parent=Top
+Instance.new("UICorner",Close).CornerRadius=UDim.new(1,0)
+
+--// SIDEBAR
+
+local Side=Instance.new("Frame",Window)
+Side.Size=UDim2.new(0,105,1,-43)
+Side.Position=UDim2.fromOffset(0,43)
+Side.BackgroundColor3=PANEL
+Side.BorderSizePixel=0
+Side.Parent=Window
+
+local SideLayout=Instance.new("UIListLayout",Side)
+SideLayout.Padding=UDim.new(0,3)
+SideLayout.HorizontalAlignment=Enum.HorizontalAlignment.Center
+SideLayout.SortOrder=Enum.SortOrder.LayoutOrder
+
+local SidePad=Instance.new("UIPadding",Side)
+SidePad.PaddingTop=UDim.new(0,8)
+
+--// CONTENT
+
+local Content=Instance.new("Frame",Window)
+Content.Size=UDim2.new(1,-105,1,-43)
+Content.Position=UDim2.fromOffset(105,43)
+Content.BackgroundTransparency=1
+Content.ClipsDescendants=true
+Content.Parent=Window
+
+local PageTitle=Instance.new("TextLabel",Content)
+PageTitle.Size=UDim2.new(1,-20,0,24)
+PageTitle.Position=UDim2.fromOffset(10,8)
+PageTitle.BackgroundTransparency=1
+PageTitle.Text="Main"
+PageTitle.TextColor3=TEXT
+PageTitle.TextSize=15
+PageTitle.Font=Enum.Font.GothamBold
+PageTitle.TextXAlignment=Enum.TextXAlignment.Left
+
+--// MAIN OBJECTS
+
+local MainObjects={}
+
+local function AddMain(Object)
+table.insert(MainObjects,Object)
+return Object
+end
+
+--// WELCOME
+
+local Welcome=AddMain(Instance.new("Frame",Content))
+Welcome.Size=UDim2.new(1,-20,0,55)
+Welcome.Position=UDim2.fromOffset(10,37)
+Welcome.BackgroundColor3=PANEL
+Welcome.BorderSizePixel=0
+Instance.new("UICorner",Welcome).CornerRadius=UDim.new(0,9)
+
+local WT=Instance.new("TextLabel",Welcome)
+WT.Size=UDim2.new(1,-16,0,20)
+WT.Position=UDim2.fromOffset(8,7)
+WT.BackgroundTransparency=1
+WT.Text="Welcome to Nexus Hub"
+WT.TextColor3=PURPLE2
+WT.TextSize=13
+WT.Font=Enum.Font.GothamBold
+WT.TextXAlignment=Enum.TextXAlignment.Left
+
+local WSub=Instance.new("TextLabel",Welcome)
+WSub.Size=UDim2.new(1,-16,0,18)
+WSub.Position=UDim2.fromOffset(8,29)
+WSub.BackgroundTransparency=1
+WSub.Text="Fast • Clean • Reliable"
+WSub.TextColor3=SUB
+WSub.TextSize=9
+WSub.Font=Enum.Font.Gotham
+WSub.TextXAlignment=Enum.TextXAlignment.Left
+
+--// VALUES
+
+local SpeedValue=16
+local JumpValue=50
+local InfiniteJump=false
+
+local function Humanoid()
+local Character=Player.Character
+return Character and Character:FindFirstChildOfClass("Humanoid")
+end
+
+local function SetSpeed(Value)
+SpeedValue=Value
+local H=Humanoid()
+if H then
+H.WalkSpeed=Value
+end
+end
+
+local function SetJump(Value)
+JumpValue=Value
+local H=Humanoid()
+if H then
+H.UseJumpPower=true
+H.JumpPower=Value
+end
+end
+
+--// SLIDER
+
+local function Slider(Name,Y,Min,Max,Default,Callback)
+
+local Label=AddMain(Instance.new("TextLabel",Content))
+Label.Size=UDim2.fromOffset(150,20)
+Label.Position=UDim2.fromOffset(10,Y)
+Label.BackgroundTransparency=1
+Label.Text=Name..": "..Default
+Label.TextColor3=TEXT
+Label.TextSize=11
+Label.Font=Enum.Font.GothamSemibold
+Label.TextXAlignment=Enum.TextXAlignment.Left
+
+local Track=AddMain(Instance.new("Frame",Content))
+Track.Size=UDim2.new(1,-20,0,12)
+Track.Position=UDim2.fromOffset(10,Y+24)
+Track.BackgroundColor3=PANEL2
+Track.BorderSizePixel=0
+Instance.new("UICorner",Track).CornerRadius=UDim.new(1,0)
+
+local Fill=Instance.new("Frame",Track)
+Fill.Size=UDim2.new((Default-Min)/(Max-Min),0,1,0)
+Fill.BackgroundColor3=PURPLE
+Fill.BorderSizePixel=0
+Fill.Parent=Track
+Instance.new("UICorner",Fill).CornerRadius=UDim.new(1,0)
+
+local Dragging=false
+
+local function Update(Input)
+
+local X=math.clamp(
+Input.Position.X-Track.AbsolutePosition.X,
+0,
+Track.AbsoluteSize.X
+)
+
+local Percent=X/Track.AbsoluteSize.X
+local Value=math.floor(Min+(Max-Min)*Percent+.5)
+
+Fill.Size=UDim2.new(Percent,0,1,0)
+Label.Text=Name..": "..Value
+Callback(Value)
+
+end
+
+Track.InputBegan:Connect(function(Input)
+
+if Input.UserInputType==Enum.UserInputType.MouseButton1
+or Input.UserInputType==Enum.UserInputType.Touch then
+
+Dragging=true      
+Update(Input)
+
+end
+
+end)
+
+UserInputService.InputChanged:Connect(function(Input)
+
+if Dragging and (
+Input.UserInputType==Enum.UserInputType.MouseMovement
+or Input.UserInputType==Enum.UserInputType.Touch
+) then
+
+Update(Input)
+
+end
+
+end)
+
+UserInputService.InputEnded:Connect(function(Input)
+
+if Input.UserInputType==Enum.UserInputType.MouseButton1
+or Input.UserInputType==Enum.UserInputType.Touch then
+
+Dragging=false
+
+end
+
+end)
+
+end
+
+Slider("Speed",102,1,100,16,SetSpeed)
+Slider("Jump",145,20,150,50,SetJump)
+
+--// INFINITE JUMP
+
+local IJ=AddMain(Instance.new("TextLabel",Content))
+IJ.Size=UDim2.fromOffset(150,22)
+IJ.Position=UDim2.fromOffset(10,188)
+IJ.BackgroundTransparency=1
+IJ.Text="Infinite Jump"
+IJ.TextColor3=TEXT
+IJ.TextSize=11
+IJ.Font=Enum.Font.GothamSemibold
+IJ.TextXAlignment=Enum.TextXAlignment.Left
+
+local Toggle=AddMain(Instance.new("TextButton",Content))
+Toggle.Size=UDim2.fromOffset(46,24)
+Toggle.Position=UDim2.new(1,-58,0,185)
+Toggle.BackgroundColor3=PANEL2
+Toggle.Text=""
+Toggle.AutoButtonColor=false
+Toggle.Parent=Content
+Instance.new("UICorner",Toggle).CornerRadius=UDim.new(1,0)
+
+local Knob=Instance.new("Frame",Toggle)
+Knob.Size=UDim2.fromOffset(18,18)
+Knob.Position=UDim2.fromOffset(3,3)
+Knob.BackgroundColor3=SUB
+Knob.BorderSizePixel=0
+Knob.Parent=Toggle
+Instance.new("UICorner",Knob).CornerRadius=UDim.new(1,0)
+
+local function UpdateToggle()
+
+if InfiniteJump then
+Toggle.BackgroundColor3=PURPLE
+Knob.BackgroundColor3=Color3.new(1,1,1)
+Knob.Position=UDim2.new(1,-21,0,3)
+else
+Toggle.BackgroundColor3=PANEL2
+Knob.BackgroundColor3=SUB
+Knob.Position=UDim2.fromOffset(3,3)
+end
+
+end
+
+Toggle.MouseButton1Click:Connect(function()
+InfiniteJump=not InfiniteJump
+UpdateToggle()
+end)
+
+UserInputService.JumpRequest:Connect(function()
+
+if InfiniteJump then
+
+local H=Humanoid()
+
+if H then
+H:ChangeState(Enum.HumanoidStateType.Jumping)
+end
+
+end
+
+end)
+
+--// AUTOMATION SELECT PETS
+
+local SelectPets=Instance.new("TextButton",Content)
+
+--// CLOSED = ORIGINAL FULL WIDTH
+local SelectClosedSize=UDim2.new(1,-20,0,38)
+local SelectClosedPosition=UDim2.fromOffset(10,48)
+
+--// OPEN = SHRINK TO FREE SPACE
+local SelectOpenSize=UDim2.new(0,82,0,38)
+local SelectOpenPosition=UDim2.fromOffset(10,48)
+
+SelectPets.Size=SelectClosedSize
+SelectPets.Position=SelectClosedPosition
+SelectPets.BackgroundColor3=PANEL
+SelectPets.Text="Select Pets"
+SelectPets.TextColor3=TEXT
+SelectPets.TextSize=11
+SelectPets.Font=Enum.Font.GothamSemibold
+SelectPets.AutoButtonColor=false
+SelectPets.Visible=false
+SelectPets.ZIndex=5
+
+Instance.new("UICorner",SelectPets).CornerRadius=UDim.new(0,8)
+
+local SelectStroke=Instance.new("UIStroke",SelectPets)
+SelectStroke.Color=PURPLE
+SelectStroke.Transparency=.5
+
+--// REFRESH SELECTED PETS
+--// OUTSIDE DRAWER
+
+local RefreshPets=Instance.new("TextButton",Content)
+
+RefreshPets.Size=UDim2.new(1,-20,0,32)
+RefreshPets.Position=UDim2.fromOffset(10,92)
+RefreshPets.BackgroundColor3=PANEL
+RefreshPets.Text="Refresh Selected Pets"
+RefreshPets.TextColor3=TEXT
+RefreshPets.TextSize=10
+RefreshPets.Font=Enum.Font.GothamSemibold
+RefreshPets.AutoButtonColor=false
+RefreshPets.Visible=false
+RefreshPets.ZIndex=5
+
+Instance.new("UICorner",RefreshPets).CornerRadius=UDim.new(0,8)
+
+local RefreshStroke=Instance.new("UIStroke",RefreshPets)
+RefreshStroke.Color=PURPLE
+RefreshStroke.Transparency=.5
+
+--// CLEAR
+--// OUTSIDE DRAWER
+
+local ClearPets=Instance.new("TextButton",Content)
+
+ClearPets.Size=UDim2.new(1,-20,0,32)
+ClearPets.Position=UDim2.fromOffset(10,130)
+ClearPets.BackgroundColor3=PANEL
+ClearPets.Text="Clear"
+ClearPets.TextColor3=TEXT
+ClearPets.TextSize=10
+ClearPets.Font=Enum.Font.GothamSemibold
+ClearPets.AutoButtonColor=false
+ClearPets.Visible=false
+ClearPets.ZIndex=5
+
+Instance.new("UICorner",ClearPets).CornerRadius=UDim.new(0,8)
+
+local ClearStroke=Instance.new("UIStroke",ClearPets)
+ClearStroke.Color=PURPLE
+ClearStroke.Transparency=.5
+
+--// DRAWER
+
+local Drawer=Instance.new("Frame",Content)
+
+-- Drawer is kept inside Content.
+local DrawerOpenPosition=UDim2.new(1,-225,0,48)
+local DrawerClosedPosition=UDim2.new(1,5,0,48)
+
+Drawer.Size=UDim2.fromOffset(215,165)
+Drawer.Position=DrawerClosedPosition
+Drawer.BackgroundColor3=PANEL
+Drawer.BorderSizePixel=0
+Drawer.Visible=false
+Drawer.ZIndex=10
+Drawer.ClipsDescendants=true
+
+Instance.new("UICorner",Drawer).CornerRadius=UDim.new(0,10)
+
+local DrawerStroke=Instance.new("UIStroke",Drawer)
+DrawerStroke.Color=PURPLE
+DrawerStroke.Transparency=.35
+
+--// DRAWER TITLE
+
+local DrawerTitle=Instance.new("TextLabel",Drawer)
+DrawerTitle.Size=UDim2.new(1,-45,0,20)
+DrawerTitle.Position=UDim2.fromOffset(10,7)
+DrawerTitle.BackgroundTransparency=1
+DrawerTitle.Text="Select Pets"
+DrawerTitle.TextColor3=TEXT
+DrawerTitle.TextSize=11
+DrawerTitle.Font=Enum.Font.GothamSemibold
+DrawerTitle.TextXAlignment=Enum.TextXAlignment.Left
+DrawerTitle.ZIndex=11
+
+local DrawerClose=Instance.new("TextButton",Drawer)
+DrawerClose.Size=UDim2.fromOffset(24,24)
+DrawerClose.Position=UDim2.new(1,-30,0,5)
+DrawerClose.BackgroundTransparency=1
+DrawerClose.Text="×"
+DrawerClose.TextColor3=SUB
+DrawerClose.TextSize=17
+DrawerClose.Font=Enum.Font.Gotham
+DrawerClose.AutoButtonColor=false
+DrawerClose.ZIndex=11
+
+--// DRAWER BLANK AREA
+
+local DrawerBlank=Instance.new("TextLabel",Drawer)
+DrawerBlank.Size=UDim2.new(1,-20,1,-38)
+DrawerBlank.Position=UDim2.fromOffset(10,34)
+DrawerBlank.BackgroundTransparency=1
+DrawerBlank.Text=""
+DrawerBlank.ZIndex=11
+
+--// DRAWER STATE
+
+local DrawerOpen=false
+local DrawerTweening=false
+
+local DrawerTweenInfo=TweenInfo.new(
+.22,
+Enum.EasingStyle.Quad,
+Enum.EasingDirection.Out
+)
+
+--// OPEN
+
+local function OpenDrawer()
+
+if DrawerTweening or DrawerOpen then
+return
+end
+
+DrawerTweening=true
+DrawerOpen=true
+
+Drawer.Visible=true
+
+-- Start outside.
+Drawer.Position=DrawerClosedPosition
+
+-- Select Pets shrinks to the free space.
+TweenService:Create(
+SelectPets,
+DrawerTweenInfo,
+{
+Size=SelectOpenSize
+}
+):Play()
+
+-- Short text so it doesn't get covered.
+SelectPets.Text="Pets"
+
+local DrawerTween=TweenService:Create(
+Drawer,
+DrawerTweenInfo,
+{
+Position=DrawerOpenPosition
+}
+)
+
+DrawerTween:Play()
+
+DrawerTween.Completed:Connect(function()
+DrawerTweening=false
+end)
+
+end
+
+--// CLOSE
+
+local function CloseDrawer()
+
+if DrawerTweening or not DrawerOpen then
+return
+end
+
+DrawerTweening=true
+DrawerOpen=false
+
+-- Restore original button.
+TweenService:Create(
+SelectPets,
+DrawerTweenInfo,
+{
+Size=SelectClosedSize
+}
+):Play()
+
+SelectPets.Text="Select Pets"
+
+-- Slide drawer back out.
+local DrawerTween=TweenService:Create(
+Drawer,
+DrawerTweenInfo,
+{
+Position=DrawerClosedPosition
+}
+)
+
+DrawerTween:Play()
+
+DrawerTween.Completed:Connect(function()
+
+DrawerTweening=false
+
+if not DrawerOpen then
+Drawer.Visible=false
+end
+
+end)
+
+end
+
+--// SELECT PETS TOGGLE
+
+SelectPets.MouseButton1Click:Connect(function()
+
+if DrawerOpen then
+CloseDrawer()
+else
+OpenDrawer()
+end
+
+end)
+
+--// DRAWER CLOSE BUTTON
+
+DrawerClose.MouseButton1Click:Connect(function()
+CloseDrawer()
+end)
+
+--// REFRESH BUTTON
+
+RefreshPets.MouseButton1Click:Connect(function()
+
+RefreshPets.Text="Refreshed!"
+
+task.delay(.7,function()
+
+if RefreshPets and RefreshPets.Parent then
+RefreshPets.Text="Refresh Selected Pets"
+end
+
+end)
+
+end)
+
+--// CLEAR BUTTON
+
+ClearPets.MouseButton1Click:Connect(function()
+
+ClearPets.Text="Cleared!"
+
+task.delay(.7,function()
+
+if ClearPets and ClearPets.Parent then
+ClearPets.Text="Clear"
+end
+
+end)
+
+end)
+
+--// PAGE MESSAGE
+
+local Message=Instance.new("TextLabel",Content)
+Message.Size=UDim2.new(1,-30,0,90)
+Message.Position=UDim2.new(0,15,.5,-30)
+Message.BackgroundTransparency=1
+Message.Text="Coming Soon"
+Message.TextColor3=TEXT
+Message.TextSize=14
+Message.Font=Enum.Font.GothamBold
+Message.TextWrapped=true
+Message.TextXAlignment=Enum.TextXAlignment.Center
+Message.TextYAlignment=Enum.TextYAlignment.Center
+Message.Visible=false
+
+--// PAGES
+
+local Pages={
+"Main",
+"Automation",
+"Plants",
+"Pets",
+"Eggs",
+"Loadouts",
+"Misc"
+}
+
+local function ShowPage(Name)
+
+for _,Object in ipairs(MainObjects) do
+Object.Visible=Name=="Main"
+end
+
+SelectPets.Visible=Name=="Automation"
+RefreshPets.Visible=Name=="Automation"
+ClearPets.Visible=Name=="Automation"
+
+Message.Visible=false
+
+if Name~="Automation" then
+
+DrawerOpen=false
+DrawerTweening=false
+Drawer.Visible=false
+Drawer.Position=DrawerClosedPosition
+
+SelectPets.Size=SelectClosedSize
+SelectPets.Position=SelectClosedPosition
+SelectPets.Text="Select Pets"
+
+end
+
+end
+
+local function PageButton(Name,Order)
+
+local Button=Instance.new("TextButton",Side)
+Button.Size=UDim2.new(1,-10,0,25)
+Button.BackgroundColor3=PANEL
+Button.Text=Name
+Button.TextColor3=SUB
+Button.TextSize=9
+Button.Font=Enum.Font.GothamMedium
+Button.AutoButtonColor=false
+Button.LayoutOrder=Order
+
+Instance.new("UICorner",Button).CornerRadius=UDim.new(0,6)
+
+Button.MouseButton1Click:Connect(function()
+
+PageTitle.Text=Name
+
+for _,Object in ipairs(Side:GetChildren()) do
+
+if Object:IsA("TextButton") then      
+	Object.BackgroundColor3=PANEL      
+	Object.TextColor3=SUB      
+end
+
+end
+
+Button.BackgroundColor3=PURPLE
+Button.TextColor3=Color3.new(1,1,1)
+
+ShowPage(Name)
+
+end)
+
+end
+
+for Index,Name in ipairs(Pages) do
+PageButton(Name,Index)
+end
+
+local First=Side:FindFirstChild("Main")
+
+if First then
+First.BackgroundColor3=PURPLE
+First.TextColor3=Color3.new(1,1,1)
+end
+
+ShowPage("Main")
+
+--// DRAG
+
+local Dragging=false
+local DragStart
+local StartPosition
+
+Top.InputBegan:Connect(function(Input)
+
+if Input.UserInputType==Enum.UserInputType.MouseButton1
+or Input.UserInputType==Enum.UserInputType.Touch then
+
+Dragging=true
+DragStart=Input.Position
+StartPosition=Window.Position
+
+end
+
+end)
+
+UserInputService.InputChanged:Connect(function(Input)
+
+if Dragging and (
+Input.UserInputType==Enum.UserInputType.MouseMovement
+or Input.UserInputType==Enum.UserInputType.Touch
+) then
+
+local Delta=Input.Position-DragStart
+
+Window.Position=UDim2.new(
+StartPosition.X.Scale,
+StartPosition.X.Offset+Delta.X,
+StartPosition.Y.Scale,
+StartPosition.Y.Offset+Delta.Y
+)
+
+end
+
+end)
+
+UserInputService.InputEnded:Connect(function(Input)
+
+if Input.UserInputType==Enum.UserInputType.MouseButton1
+or Input.UserInputType==Enum.UserInputType.Touch then
+
+Dragging=false
+
+end
+
+end)
+
+--// MINIMIZE
+
+local Minimized=false
+
+Min.MouseButton1Click:Connect(function()
+
+Minimized=not Minimized
+
+if Minimized then
+
+Window.Size=UDim2.fromOffset(420,43)
+Side.Visible=false
+Content.Visible=false
+
+else
+
+Window.Size=UDim2.fromOffset(420,270)
+Side.Visible=true
+Content.Visible=true
+
+end
+
+end)
+
+--// CLOSE
+
+Close.MouseButton1Click:Connect(function()
+Gui:Destroy()
+end)
+
+--// HIDE
+
+UserInputService.InputBegan:Connect(function(Input,Processed)
+
+if not Processed and Input.KeyCode==Enum.KeyCode.H then
+Window.Visible=not Window.Visible
+end
+
+end)
+
+--// RESPAWN
+
+Player.CharacterAdded:Connect(function(Character)
+
+local H=Character:WaitForChild("Humanoid",5)
+
+if H then
+
+task.wait(.1)
+
+H.WalkSpeed=SpeedValue
+H.UseJumpPower=true
+H.JumpPower=JumpValue
+
+end
+
+end)
+
+end
+
+--// LOADING
+
+task.spawn(function()
+
+for i=0,100 do
+
+LFill.Size=UDim2.new(i/100,0,1,0)
+LPct.Text=i.."%"
+
+task.wait(.025)
+
+end
+
+task.wait(.4)
+
+TweenService:Create(LP,TweenInfo.new(.3),{
+BackgroundTransparency=1
+}):Play()
+
+TweenService:Create(LS,TweenInfo.new(.3),{
+Transparency=1
+}):Play()
+
+TweenService:Create(LT,TweenInfo.new(.3),{
+TextTransparency=1
+}):Play()
+
+TweenService:Create(LPct,TweenInfo.new(.3),{
+TextTransparency=1
+}):Play()
+
+TweenService:Create(LTrack,TweenInfo.new(.3),{
+BackgroundTransparency=1
+}):Play()
+
+TweenService:Create(LFill,TweenInfo.new(.3),{
+BackgroundTransparency=1
+}):Play()
+
+task.wait(.35)
+
+LG:Destroy()
+CreateUI()
+
+end)
