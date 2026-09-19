@@ -1,942 +1,736 @@
---// NEXUS HUB
-
 local Players=game:GetService("Players")
-local TweenService=game:GetService("TweenService")
-local UserInputService=game:GetService("UserInputService")
+local UIS=game:GetService("UserInputService")
+local TS=game:GetService("TweenService")
+local RunService=game:GetService("RunService")
+local VirtualUser=game:GetService("VirtualUser")
+local Lighting=game:GetService("Lighting")
+local LP=Players.LocalPlayer
 
-local Player=Players.LocalPlayer
-local PlayerGui=Player:WaitForChild("PlayerGui")
-
+local W,H=450,230
+local PURPLE=Color3.fromRGB(150,65,255)
+local PURPLE2=Color3.fromRGB(180,110,255)
 local BG=Color3.fromRGB(18,16,30)
 local PANEL=Color3.fromRGB(25,22,40)
 local PANEL2=Color3.fromRGB(31,27,48)
-local PURPLE=Color3.fromRGB(150,65,255)
-local PURPLE2=Color3.fromRGB(180,110,255)
-local TEXT=Color3.fromRGB(235,230,255)
-local SUB=Color3.fromRGB(165,155,190)
+local WHITE=Color3.fromRGB(245,245,250)
+local GRAY=Color3.fromRGB(150,145,165)
+local DARK=Color3.fromRGB(12,10,20)
+local OFF=Color3.fromRGB(70,65,80)
 
---// LOADING
+local Speed,Jump=16,50
+local AntiAFKEnabled=false
+local MoreReduceLagEnabled=false
+local Theme="Classic"
+local Minimized=false
+local DrawerOpen=false
 
-local LG=Instance.new("ScreenGui",PlayerGui)
-LG.Name="NexusLoading"
-LG.ResetOnSpawn=false
+local Themes={
+Classic={P=Color3.fromRGB(150,65,255),P2=Color3.fromRGB(180,110,255),B=Color3.fromRGB(18,16,30),C=Color3.fromRGB(25,22,40),C2=Color3.fromRGB(31,27,48),D=Color3.fromRGB(12,10,20)},
+Red={P=Color3.fromRGB(190,55,75),P2=Color3.fromRGB(235,105,120),B=Color3.fromRGB(22,15,19),C=Color3.fromRGB(35,22,27),C2=Color3.fromRGB(46,27,33),D=Color3.fromRGB(15,10,12)},
+Blue={P=Color3.fromRGB(55,125,230),P2=Color3.fromRGB(105,175,255),B=Color3.fromRGB(14,18,28),C=Color3.fromRGB(21,28,43),C2=Color3.fromRGB(27,36,54),D=Color3.fromRGB(9,12,20)},
+GrayBlack={P=Color3.fromRGB(105,105,110),P2=Color3.fromRGB(175,175,180),B=Color3.fromRGB(10,10,11),C=Color3.fromRGB(20,20,22),C2=Color3.fromRGB(30,30,33),D=Color3.fromRGB(5,5,6)}
+}
 
-local LP=Instance.new("Frame",LG)
-LP.Size=UDim2.fromOffset(300,75)
-LP.Position=UDim2.new(.5,-150,0,12)
-LP.BackgroundColor3=Color3.fromRGB(30,26,48)
-LP.BorderSizePixel=0
-Instance.new("UICorner",LP).CornerRadius=UDim.new(0,10)
+local function ReduceLag()
+pcall(function()
+Lighting.GlobalShadows=false
+Lighting.FogEnd=100000
+Lighting.Brightness=1
+for _,v in ipairs(workspace:GetDescendants())do
+if v:IsA("ParticleEmitter")or v:IsA("Trail")or v:IsA("Beam")or v:IsA("Smoke")or v:IsA("Fire")or v:IsA("Sparkles")then
+v.Enabled=false
+elseif v:IsA("PointLight")or v:IsA("SpotLight")or v:IsA("SurfaceLight")then
+v.Enabled=false
+end
+end
+for _,v in ipairs(Lighting:GetDescendants())do
+if v:IsA("PostEffect")then v.Enabled=false end
+end
+end)
+end
 
-local LS=Instance.new("UIStroke",LP)
-LS.Color=PURPLE
-LS.Transparency=.55
-
-local LT=Instance.new("TextLabel",LP)
-LT.Size=UDim2.new(1,-20,0,20)
-LT.Position=UDim2.fromOffset(10,7)
-LT.BackgroundTransparency=1
-LT.Text="NEXUS HUB LOADING..."
-LT.TextColor3=TEXT
-LT.TextSize=13
-LT.Font=Enum.Font.GothamBold
-LT.TextXAlignment=Enum.TextXAlignment.Left
-LT.Parent=LP
-
-local LTrack=Instance.new("Frame",LP)
-LTrack.Size=UDim2.new(1,-20,0,16)
-LTrack.Position=UDim2.fromOffset(10,32)
-LTrack.BackgroundColor3=BG
-LTrack.BorderSizePixel=0
-Instance.new("UICorner",LTrack).CornerRadius=UDim.new(0,8)
-
-local LFill=Instance.new("Frame",LTrack)
-LFill.Size=UDim2.new(0,0,1,0)
-LFill.BackgroundColor3=PURPLE
-LFill.BorderSizePixel=0
-Instance.new("UICorner",LFill).CornerRadius=UDim.new(0,8)
-
-local LPct=Instance.new("TextLabel",LP)
-LPct.Size=UDim2.new(1,-20,0,18)
-LPct.Position=UDim2.fromOffset(10,52)
-LPct.BackgroundTransparency=1
-LPct.Text="0%"
-LPct.TextColor3=TEXT
-LPct.TextSize=11
-LPct.Font=Enum.Font.GothamSemibold
-LPct.TextXAlignment=Enum.TextXAlignment.Left
-LPct.Parent=LP
-
---// UI
-
-local function CreateUI()
-
-local Gui=Instance.new("ScreenGui",PlayerGui)
+local Gui=Instance.new("ScreenGui")
 Gui.Name="NexusHub"
 Gui.ResetOnSpawn=false
+Gui.Parent=LP:WaitForChild("PlayerGui")
 
-local Window=Instance.new("Frame",Gui)
-Window.Size=UDim2.fromOffset(420,270)
-Window.Position=UDim2.new(.5,-210,.5,-135)
-Window.BackgroundColor3=BG
-Window.BorderSizePixel=0
-Window.ClipsDescendants=true
-Instance.new("UICorner",Window).CornerRadius=UDim.new(0,12)
+local function Corner(o,r)
+local c=Instance.new("UICorner")
+c.CornerRadius=UDim.new(0,r)
+c.Parent=o
+end
 
-local WS=Instance.new("UIStroke",Window)
-WS.Color=PURPLE
-WS.Transparency=.2
+local function Tween(o,t,p,e,d)
+return TS:Create(o,TweenInfo.new(t,e or Enum.EasingStyle.Quart,d or Enum.EasingDirection.Out),p)
+end
 
---// TOP
+local Main=Instance.new("Frame")
+Main.Size=UDim2.fromOffset(W,H)
+Main.Position=UDim2.new(.5,-W/2,.5,-H/2)
+Main.BackgroundColor3=BG
+Main.BorderSizePixel=0
+Main.Active=true
+Main.ClipsDescendants=true
+Main.Parent=Gui
+Corner(Main,12)
 
-local Top=Instance.new("Frame",Window)
-Top.Size=UDim2.new(1,0,0,43)
-Top.BackgroundColor3=PANEL
-Top.BorderSizePixel=0
-Instance.new("UICorner",Top).CornerRadius=UDim.new(0,12)
+local MS=Instance.new("UIStroke")
+MS.Color=Color3.fromRGB(70,55,95)
+MS.Transparency=.25
+MS.Parent=Main
 
-local Logo=Instance.new("TextLabel",Top)
-Logo.Size=UDim2.fromOffset(32,32)
-Logo.Position=UDim2.fromOffset(8,5)
+local Header=Instance.new("Frame")
+Header.Size=UDim2.new(1,0,0,43)
+Header.BackgroundTransparency=1
+Header.Parent=Main
+
+local Drag=Instance.new("Frame")
+Drag.Size=UDim2.new(1,-88,1,0)
+Drag.BackgroundTransparency=1
+Drag.Active=true
+Drag.Parent=Header
+
+local Logo=Instance.new("Frame")
+Logo.Size=UDim2.fromOffset(25,25)
+Logo.Position=UDim2.fromOffset(10,9)
 Logo.BackgroundColor3=PURPLE
-Logo.Text="N"
-Logo.TextColor3=Color3.new(1,1,1)
-Logo.TextSize=19
-Logo.Font=Enum.Font.GothamBold
-Logo.Parent=Top
-Instance.new("UICorner",Logo).CornerRadius=UDim.new(0,8)
+Logo.BorderSizePixel=0
+Logo.Parent=Header
+Corner(Logo,7)
 
-local Title=Instance.new("TextLabel",Top)
-Title.Size=UDim2.fromOffset(170,20)
-Title.Position=UDim2.fromOffset(48,5)
+local LS=Instance.new("UIStroke")
+LS.Color=PURPLE2
+LS.Transparency=.15
+LS.Parent=Logo
+
+local NL=Instance.new("TextLabel")
+NL.Size=UDim2.fromScale(1,1)
+NL.BackgroundTransparency=1
+NL.Text="N"
+NL.TextColor3=WHITE
+NL.TextSize=15
+NL.Font=Enum.Font.GothamBlack
+NL.Parent=Logo
+
+local Title=Instance.new("TextLabel")
+Title.Position=UDim2.fromOffset(43,6)
+Title.Size=UDim2.new(1,-145,0,18)
 Title.BackgroundTransparency=1
 Title.Text="Nexus Hub"
-Title.TextColor3=TEXT
-Title.TextSize=16
+Title.TextColor3=WHITE
+Title.TextSize=14
 Title.Font=Enum.Font.GothamBold
 Title.TextXAlignment=Enum.TextXAlignment.Left
-Title.Parent=Top
+Title.Parent=Header
 
-local Version=Instance.new("TextLabel",Top)
-Version.Size=UDim2.fromOffset(130,15)
-Version.Position=UDim2.fromOffset(49,24)
-Version.BackgroundTransparency=1
-Version.Text="v1.0.0 • Nexus"
-Version.TextColor3=SUB
-Version.TextSize=8
-Version.Font=Enum.Font.Gotham
-Version.TextXAlignment=Enum.TextXAlignment.Left
-Version.Parent=Top
+local Sub=Instance.new("TextLabel")
+Sub.Position=UDim2.fromOffset(43,23)
+Sub.Size=UDim2.new(1,-145,0,14)
+Sub.BackgroundTransparency=1
+Sub.Text="By King Flame / Nexus Hub Team"
+Sub.TextColor3=GRAY
+Sub.TextSize=9
+Sub.Font=Enum.Font.Gotham
+Sub.TextXAlignment=Enum.TextXAlignment.Left
+Sub.Parent=Header
 
-local Min=Instance.new("TextButton",Top)
-Min.Size=UDim2.fromOffset(30,30)
-Min.Position=UDim2.new(1,-68,0,6)
-Min.BackgroundColor3=PANEL2
-Min.Text="—"
-Min.TextColor3=PURPLE2
-Min.TextSize=17
-Min.Font=Enum.Font.GothamBold
-Min.AutoButtonColor=false
-Min.Parent=Top
-Instance.new("UICorner",Min).CornerRadius=UDim.new(1,0)
+local Mini=Instance.new("TextButton")
+Mini.Size=UDim2.fromOffset(28,28)
+Mini.Position=UDim2.new(1,-69,0,7)
+Mini.BackgroundColor3=PANEL2
+Mini.BorderSizePixel=0
+Mini.Text="—"
+Mini.TextColor3=WHITE
+Mini.TextSize=13
+Mini.Font=Enum.Font.GothamBold
+Mini.AutoButtonColor=false
+Mini.Parent=Header
+Corner(Mini,8)
 
-local Close=Instance.new("TextButton",Top)
-Close.Size=UDim2.fromOffset(30,30)
-Close.Position=UDim2.new(1,-34,0,6)
+local Close=Instance.new("TextButton")
+Close.Size=UDim2.fromOffset(28,28)
+Close.Position=UDim2.new(1,-35,0,7)
 Close.BackgroundColor3=PANEL2
+Close.BorderSizePixel=0
 Close.Text="×"
-Close.TextColor3=TEXT
-Close.TextSize=20
-Close.Font=Enum.Font.Gotham
+Close.TextColor3=WHITE
+Close.TextSize=16
+Close.Font=Enum.Font.GothamBold
 Close.AutoButtonColor=false
-Close.Parent=Top
-Instance.new("UICorner",Close).CornerRadius=UDim.new(1,0)
+Close.Parent=Header
+Corner(Close,8)
 
---// SIDEBAR
+local Body=Instance.new("Frame")
+Body.Position=UDim2.fromOffset(8,48)
+Body.Size=UDim2.new(1,-16,1,-56)
+Body.BackgroundTransparency=1
+Body.Parent=Main
 
-local Side=Instance.new("Frame",Window)
-Side.Size=UDim2.new(0,105,1,-43)
-Side.Position=UDim2.fromOffset(0,43)
+local Side=Instance.new("Frame")
+Side.Size=UDim2.fromOffset(90,177)
 Side.BackgroundColor3=PANEL
 Side.BorderSizePixel=0
-Side.Parent=Window
+Side.Parent=Body
+Corner(Side,9)
 
-local SideLayout=Instance.new("UIListLayout",Side)
-SideLayout.Padding=UDim.new(0,3)
-SideLayout.HorizontalAlignment=Enum.HorizontalAlignment.Center
-SideLayout.SortOrder=Enum.SortOrder.LayoutOrder
+local Content=Instance.new("ScrollingFrame")
+Content.Position=UDim2.fromOffset(98,0)
+Content.Size=UDim2.new(1,-98,1,0)
+Content.BackgroundColor3=PANEL
+Content.BorderSizePixel=0
+Content.ScrollBarThickness=4
+Content.ScrollBarImageColor3=PURPLE
+Content.CanvasSize=UDim2.fromOffset(0,0)
+Content.Parent=Body
+Corner(Content,9)
 
-local SidePad=Instance.new("UIPadding",Side)
-SidePad.PaddingTop=UDim.new(0,8)
-
---// CONTENT
-
-local Content=Instance.new("Frame",Window)
-Content.Size=UDim2.new(1,-105,1,-43)
-Content.Position=UDim2.fromOffset(105,43)
-Content.BackgroundTransparency=1
-Content.ClipsDescendants=true
-Content.Parent=Window
-
-local PageTitle=Instance.new("TextLabel",Content)
-PageTitle.Size=UDim2.new(1,-20,0,24)
-PageTitle.Position=UDim2.fromOffset(10,8)
-PageTitle.BackgroundTransparency=1
-PageTitle.Text="Main"
-PageTitle.TextColor3=TEXT
-PageTitle.TextSize=15
-PageTitle.Font=Enum.Font.GothamBold
-PageTitle.TextXAlignment=Enum.TextXAlignment.Left
-
---// MAIN OBJECTS
-
-local MainObjects={}
-
-local function AddMain(Object)
-table.insert(MainObjects,Object)
-return Object
+local Pages={}
+for _,n in ipairs({"Main","Automation","Plants","Eggs","Event","Misc"})do
+local p=Instance.new("Frame")
+p.Name=n
+p.Size=UDim2.new(1,-4,0,280)
+p.BackgroundTransparency=1
+p.Visible=n=="Main"
+p.Parent=Content
+Pages[n]=p
 end
 
---// WELCOME
+local PageCanvas={Main=168,Automation=174,Plants=174,Eggs=174,Event=174,Misc=221}
 
-local Welcome=AddMain(Instance.new("Frame",Content))
-Welcome.Size=UDim2.new(1,-20,0,55)
-Welcome.Position=UDim2.fromOffset(10,37)
-Welcome.BackgroundColor3=PANEL
-Welcome.BorderSizePixel=0
-Instance.new("UICorner",Welcome).CornerRadius=UDim.new(0,9)
-
-local WT=Instance.new("TextLabel",Welcome)
-WT.Size=UDim2.new(1,-16,0,20)
-WT.Position=UDim2.fromOffset(8,7)
-WT.BackgroundTransparency=1
-WT.Text="Welcome to Nexus Hub"
-WT.TextColor3=PURPLE2
-WT.TextSize=13
-WT.Font=Enum.Font.GothamBold
-WT.TextXAlignment=Enum.TextXAlignment.Left
-
-local WSub=Instance.new("TextLabel",Welcome)
-WSub.Size=UDim2.new(1,-16,0,18)
-WSub.Position=UDim2.fromOffset(8,29)
-WSub.BackgroundTransparency=1
-WSub.Text="Fast • Clean • Reliable"
-WSub.TextColor3=SUB
-WSub.TextSize=9
-WSub.Font=Enum.Font.Gotham
-WSub.TextXAlignment=Enum.TextXAlignment.Left
-
---// VALUES
-
-local SpeedValue=16
-local JumpValue=50
-local InfiniteJump=false
-
-local function Humanoid()
-local Character=Player.Character
-return Character and Character:FindFirstChildOfClass("Humanoid")
+local function SetCanvas(n)
+Content.CanvasPosition=Vector2.zero
+Content.CanvasSize=UDim2.fromOffset(0,PageCanvas[n] or 174)
 end
 
-local function SetSpeed(Value)
-SpeedValue=Value
-local H=Humanoid()
-if H then
-H.WalkSpeed=Value
+SetCanvas("Main")
+
+local Tabs={}
+local Locked={Plants=true,Eggs=true,Event=true}
+
+for i,n in ipairs({"Main","Automation","Plants","Eggs","Event","Misc"})do
+local b=Instance.new("TextButton")
+b.Name=n.."Tab"
+b.Size=UDim2.new(1,-10,0,24)
+b.Position=UDim2.fromOffset(5,5+(i-1)*28)
+b.BackgroundColor3=n=="Main" and PURPLE or PANEL
+b.BorderSizePixel=0
+b.Text=Locked[n] and "🔒 "..n or n
+b.TextColor3=n=="Main" and WHITE or GRAY
+b.TextSize=10
+b.Font=Enum.Font.GothamSemibold
+b.AutoButtonColor=false
+b.Active=not Locked[n]
+b.Selectable=not Locked[n]
+b.Parent=Side
+Corner(b,7)
+Tabs[n]=b
+end
+
+local Rainbow={}
+local function RGB(o)table.insert(Rainbow,o)end
+
+for _,n in ipairs({"Plants","Eggs","Event"})do
+RGB(Tabs[n])
+local l=Instance.new("TextLabel")
+l.Size=UDim2.fromScale(1,1)
+l.BackgroundTransparency=1
+l.Text="🔒 This section is premium."
+l.TextColor3=WHITE
+l.TextSize=14
+l.Font=Enum.Font.GothamBold
+l.Parent=Pages[n]
+RGB(l)
+end
+
+RunService.RenderStepped:Connect(function()
+local c=Color3.fromHSV((os.clock()*.18)%1,.85,1)
+for i=#Rainbow,1,-1 do
+local o=Rainbow[i]
+if o and o.Parent then o.TextColor3=c else table.remove(Rainbow,i)end
+end
+end)
+
+for _,n in ipairs({"Main","Automation","Misc"})do
+Tabs[n].MouseButton1Click:Connect(function()
+for _,p in pairs(Pages)do p.Visible=false end
+for x,b in pairs(Tabs)do
+if not Locked[x]then
+b.BackgroundColor3=PANEL
+b.TextColor3=GRAY
 end
 end
-
-local function SetJump(Value)
-JumpValue=Value
-local H=Humanoid()
-if H then
-H.UseJumpPower=true
-H.JumpPower=Value
-end
+Pages[n].Visible=true
+Tabs[n].BackgroundColor3=PURPLE
+Tabs[n].TextColor3=WHITE
+SetCanvas(n)
+end)
 end
 
---// SLIDER
+local function Card(parent,y,title,desc)
+local c=Instance.new("Frame")
+c.Position=UDim2.fromOffset(10,y)
+c.Size=UDim2.new(1,-20,0,55)
+c.BackgroundColor3=PANEL2
+c.BorderSizePixel=0
+c.Parent=parent
+Corner(c,9)
 
-local function Slider(Name,Y,Min,Max,Default,Callback)
+local t=Instance.new("TextLabel")
+t.Position=UDim2.fromOffset(12,8)
+t.Size=UDim2.new(1,-75,0,17)
+t.BackgroundTransparency=1
+t.Text=title
+t.TextColor3=WHITE
+t.TextSize=11
+t.Font=Enum.Font.GothamBold
+t.TextXAlignment=Enum.TextXAlignment.Left
+t.Parent=c
 
-local Label=AddMain(Instance.new("TextLabel",Content))
-Label.Size=UDim2.fromOffset(150,20)
-Label.Position=UDim2.fromOffset(10,Y)
-Label.BackgroundTransparency=1
-Label.Text=Name..": "..Default
-Label.TextColor3=TEXT
-Label.TextSize=11
-Label.Font=Enum.Font.GothamSemibold
-Label.TextXAlignment=Enum.TextXAlignment.Left
+local d=Instance.new("TextLabel")
+d.Position=UDim2.fromOffset(12,26)
+d.Size=UDim2.new(1,-75,0,14)
+d.BackgroundTransparency=1
+d.Text=desc
+d.TextColor3=GRAY
+d.TextSize=8
+d.Font=Enum.Font.Gotham
+d.TextXAlignment=Enum.TextXAlignment.Left
+d.Parent=c
 
-local Track=AddMain(Instance.new("Frame",Content))
-Track.Size=UDim2.new(1,-20,0,12)
-Track.Position=UDim2.fromOffset(10,Y+24)
-Track.BackgroundColor3=PANEL2
-Track.BorderSizePixel=0
-Instance.new("UICorner",Track).CornerRadius=UDim.new(1,0)
-
-local Fill=Instance.new("Frame",Track)
-Fill.Size=UDim2.new((Default-Min)/(Max-Min),0,1,0)
-Fill.BackgroundColor3=PURPLE
-Fill.BorderSizePixel=0
-Fill.Parent=Track
-Instance.new("UICorner",Fill).CornerRadius=UDim.new(1,0)
-
-local Dragging=false
-
-local function Update(Input)
-
-local X=math.clamp(
-Input.Position.X-Track.AbsolutePosition.X,
-0,
-Track.AbsoluteSize.X
-)
-
-local Percent=X/Track.AbsoluteSize.X
-local Value=math.floor(Min+(Max-Min)*Percent+.5)
-
-Fill.Size=UDim2.new(Percent,0,1,0)
-Label.Text=Name..": "..Value
-Callback(Value)
+return c
 
 end
 
-Track.InputBegan:Connect(function(Input)
+local function Slider(parent,y,title,desc,value,max)
+local c=Card(parent,y,title,desc)
 
-if Input.UserInputType==Enum.UserInputType.MouseButton1
-or Input.UserInputType==Enum.UserInputType.Touch then
+local v=Instance.new("TextLabel")
+v.Position=UDim2.new(1,-60,0,8)
+v.Size=UDim2.fromOffset(48,17)
+v.BackgroundTransparency=1
+v.Text=tostring(value)
+v.TextColor3=PURPLE2
+v.TextSize=10
+v.Font=Enum.Font.GothamBold
+v.TextXAlignment=Enum.TextXAlignment.Right
+v.Parent=c
 
-Dragging=true      
-Update(Input)
+local bar=Instance.new("Frame")
+bar.Position=UDim2.fromOffset(12,43)
+bar.Size=UDim2.new(1,-24,0,5)
+bar.BackgroundColor3=DARK
+bar.BorderSizePixel=0
+bar.Parent=c
+Corner(bar,5)
+
+local fill=Instance.new("Frame")
+fill.Size=UDim2.new(value/max,0,1,0)
+fill.BackgroundColor3=PURPLE
+fill.BorderSizePixel=0
+fill.Parent=bar
+Corner(fill,5)
+
+local knob=Instance.new("Frame")
+knob.AnchorPoint=Vector2.new(.5,.5)
+knob.Size=UDim2.fromOffset(11,11)
+knob.Position=UDim2.new(value/max,0,.5,0)
+knob.BackgroundColor3=WHITE
+knob.BorderSizePixel=0
+knob.Parent=bar
+Corner(knob,8)
+
+local drag=false
+
+local function update(i)
+local n=math.clamp((i.Position.X-bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
+value=n*max
+v.Text=string.format("%.1f",value)
+fill.Size=UDim2.new(n,0,1,0)
+knob.Position=UDim2.new(n,0,.5,0)
+return value
+end
+
+bar.InputBegan:Connect(function(i)
+if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+drag=true
+if title=="Speed"then Speed=update(i)else Jump=update(i)end
+local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+if h then h.WalkSpeed=Speed;h.JumpPower=Jump end
+end
+end)
+
+UIS.InputChanged:Connect(function(i)
+if drag and(i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch)then
+if title=="Speed"then Speed=update(i)else Jump=update(i)end
+local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+if h then h.WalkSpeed=Speed;h.JumpPower=Jump end
+end
+end)
+
+UIS.InputEnded:Connect(function(i)
+if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=false end
+end)
 
 end
+
+local MT=Instance.new("TextLabel")
+MT.Position=UDim2.fromOffset(14,10)
+MT.Size=UDim2.new(1,-28,0,18)
+MT.BackgroundTransparency=1
+MT.Text="Movement"
+MT.TextColor3=WHITE
+MT.TextSize=13
+MT.Font=Enum.Font.GothamBold
+MT.TextXAlignment=Enum.TextXAlignment.Left
+MT.Parent=Pages.Main
+
+Slider(Pages.Main,34,"Speed","Adjust movement speed",Speed,100)
+Slider(Pages.Main,103,"Jump","Adjust jump height",Jump,200)
+
+local AL=Instance.new("TextLabel")
+AL.Size=UDim2.fromScale(1,1)
+AL.BackgroundTransparency=1
+AL.Text="Automation"
+AL.TextColor3=GRAY
+AL.TextSize=12
+AL.Font=Enum.Font.GothamMedium
+AL.Parent=Pages.Automation
+
+local MM=Instance.new("TextLabel")
+MM.Position=UDim2.fromOffset(14,10)
+MM.Size=UDim2.new(1,-28,0,18)
+MM.BackgroundTransparency=1
+MM.Text="Misc"
+MM.TextColor3=WHITE
+MM.TextSize=13
+MM.Font=Enum.Font.GothamBold
+MM.TextXAlignment=Enum.TextXAlignment.Left
+MM.Parent=Pages.Misc
+
+local function ToggleCard(y,title,desc)
+local c=Card(Pages.Misc,y,title,desc)
+
+local b=Instance.new("TextButton")
+b.Size=UDim2.fromOffset(46,24)
+b.Position=UDim2.new(1,-58,.5,-12)
+b.BackgroundColor3=OFF
+b.BorderSizePixel=0
+b.Text=""
+b.AutoButtonColor=false
+b.Parent=c
+Corner(b,20)
+
+local k=Instance.new("Frame")
+k.Size=UDim2.fromOffset(18,18)
+k.Position=UDim2.fromOffset(3,3)
+k.BackgroundColor3=WHITE
+k.BorderSizePixel=0
+k.Parent=b
+Corner(k,20)
+
+local ks=Instance.new("UIStroke")
+ks.Thickness=1.5
+ks.Transparency=.25
+ks.Color=Color3.fromRGB(120,115,130)
+ks.Parent=k
+
+local state=false
+
+local function SetSwitch(on)
+state=on
+Tween(b,.18,{BackgroundColor3=on and PURPLE or OFF}):Play()
+Tween(k,.18,{
+Position=on and UDim2.new(1,-21,0,3) or UDim2.fromOffset(3,3),
+Size=UDim2.fromOffset(19,19)
+},Enum.EasingStyle.Back):Play()
+Tween(ks,.18,{
+Color=on and PURPLE2 or Color3.fromRGB(120,115,130),
+Transparency=on and .05 or .25
+}):Play()
+end
+
+b.MouseButton1Click:Connect(function()
+SetSwitch(not state)
+
+if title=="Anti AFK"then    
+	AntiAFKEnabled=state    
+elseif title=="More Reduce Lag"then    
+	MoreReduceLagEnabled=state    
+	if state then ReduceLag()end    
+end    
+
+Tween(b,.07,{    
+	Size=UDim2.fromOffset(48,25),    
+	Position=UDim2.new(1,-59,.5,-12.5)    
+},Enum.EasingStyle.Quad):Play()    
+
+task.delay(.07,function()    
+	Tween(b,.1,{    
+		Size=UDim2.fromOffset(46,24),    
+		Position=UDim2.new(1,-58,.5,-12)    
+	},Enum.EasingStyle.Back):Play()    
+end)
 
 end)
 
-UserInputService.InputChanged:Connect(function(Input)
-
-if Dragging and (
-Input.UserInputType==Enum.UserInputType.MouseMovement
-or Input.UserInputType==Enum.UserInputType.Touch
-) then
-
-Update(Input)
-
 end
 
-end)
+ToggleCard(34,"Anti AFK","Prevents being kicked for inactivity")
+ToggleCard(95,"More Reduce Lag","More reduce lag")
 
-UserInputService.InputEnded:Connect(function(Input)
+local TC=Card(Pages.Misc,156,"Select Theme","Change UI appearance")
 
-if Input.UserInputType==Enum.UserInputType.MouseButton1
-or Input.UserInputType==Enum.UserInputType.Touch then
+local ThemeOpen=Instance.new("TextButton")
+ThemeOpen.Size=UDim2.fromOffset(55,30)
+ThemeOpen.Position=UDim2.new(1,-65,.5,-15)
+ThemeOpen.BackgroundColor3=PANEL
+ThemeOpen.BorderSizePixel=0
+ThemeOpen.Text="›"
+ThemeOpen.TextColor3=PURPLE2
+ThemeOpen.TextSize=22
+ThemeOpen.Font=Enum.Font.GothamBold
+ThemeOpen.AutoButtonColor=false
+ThemeOpen.Parent=TC
+Corner(ThemeOpen,8)
 
-Dragging=false
-
-end
-
-end)
-
-end
-
-Slider("Speed",102,1,100,16,SetSpeed)
-Slider("Jump",145,20,150,50,SetJump)
-
---// INFINITE JUMP
-
-local IJ=AddMain(Instance.new("TextLabel",Content))
-IJ.Size=UDim2.fromOffset(150,22)
-IJ.Position=UDim2.fromOffset(10,188)
-IJ.BackgroundTransparency=1
-IJ.Text="Infinite Jump"
-IJ.TextColor3=TEXT
-IJ.TextSize=11
-IJ.Font=Enum.Font.GothamSemibold
-IJ.TextXAlignment=Enum.TextXAlignment.Left
-
-local Toggle=AddMain(Instance.new("TextButton",Content))
-Toggle.Size=UDim2.fromOffset(46,24)
-Toggle.Position=UDim2.new(1,-58,0,185)
-Toggle.BackgroundColor3=PANEL2
-Toggle.Text=""
-Toggle.AutoButtonColor=false
-Toggle.Parent=Content
-Instance.new("UICorner",Toggle).CornerRadius=UDim.new(1,0)
-
-local Knob=Instance.new("Frame",Toggle)
-Knob.Size=UDim2.fromOffset(18,18)
-Knob.Position=UDim2.fromOffset(3,3)
-Knob.BackgroundColor3=SUB
-Knob.BorderSizePixel=0
-Knob.Parent=Toggle
-Instance.new("UICorner",Knob).CornerRadius=UDim.new(1,0)
-
-local function UpdateToggle()
-
-if InfiniteJump then
-Toggle.BackgroundColor3=PURPLE
-Knob.BackgroundColor3=Color3.new(1,1,1)
-Knob.Position=UDim2.new(1,-21,0,3)
-else
-Toggle.BackgroundColor3=PANEL2
-Knob.BackgroundColor3=SUB
-Knob.Position=UDim2.fromOffset(3,3)
-end
-
-end
-
-Toggle.MouseButton1Click:Connect(function()
-InfiniteJump=not InfiniteJump
-UpdateToggle()
-end)
-
-UserInputService.JumpRequest:Connect(function()
-
-if InfiniteJump then
-
-local H=Humanoid()
-
-if H then
-H:ChangeState(Enum.HumanoidStateType.Jumping)
-end
-
-end
-
-end)
-
---// AUTOMATION SELECT PETS
-
-local SelectPets=Instance.new("TextButton",Content)
-
---// CLOSED = ORIGINAL FULL WIDTH
-local SelectClosedSize=UDim2.new(1,-20,0,38)
-local SelectClosedPosition=UDim2.fromOffset(10,48)
-
---// OPEN = SHRINK TO FREE SPACE
-local SelectOpenSize=UDim2.new(0,82,0,38)
-local SelectOpenPosition=UDim2.fromOffset(10,48)
-
-SelectPets.Size=SelectClosedSize
-SelectPets.Position=SelectClosedPosition
-SelectPets.BackgroundColor3=PANEL
-SelectPets.Text="Select Pets"
-SelectPets.TextColor3=TEXT
-SelectPets.TextSize=11
-SelectPets.Font=Enum.Font.GothamSemibold
-SelectPets.AutoButtonColor=false
-SelectPets.Visible=false
-SelectPets.ZIndex=5
-
-Instance.new("UICorner",SelectPets).CornerRadius=UDim.new(0,8)
-
-local SelectStroke=Instance.new("UIStroke",SelectPets)
-SelectStroke.Color=PURPLE
-SelectStroke.Transparency=.5
-
---// REFRESH SELECTED PETS
---// OUTSIDE DRAWER
-
-local RefreshPets=Instance.new("TextButton",Content)
-
-RefreshPets.Size=UDim2.new(1,-20,0,32)
-RefreshPets.Position=UDim2.fromOffset(10,92)
-RefreshPets.BackgroundColor3=PANEL
-RefreshPets.Text="Refresh Selected Pets"
-RefreshPets.TextColor3=TEXT
-RefreshPets.TextSize=10
-RefreshPets.Font=Enum.Font.GothamSemibold
-RefreshPets.AutoButtonColor=false
-RefreshPets.Visible=false
-RefreshPets.ZIndex=5
-
-Instance.new("UICorner",RefreshPets).CornerRadius=UDim.new(0,8)
-
-local RefreshStroke=Instance.new("UIStroke",RefreshPets)
-RefreshStroke.Color=PURPLE
-RefreshStroke.Transparency=.5
-
---// CLEAR
---// OUTSIDE DRAWER
-
-local ClearPets=Instance.new("TextButton",Content)
-
-ClearPets.Size=UDim2.new(1,-20,0,32)
-ClearPets.Position=UDim2.fromOffset(10,130)
-ClearPets.BackgroundColor3=PANEL
-ClearPets.Text="Clear"
-ClearPets.TextColor3=TEXT
-ClearPets.TextSize=10
-ClearPets.Font=Enum.Font.GothamSemibold
-ClearPets.AutoButtonColor=false
-ClearPets.Visible=false
-ClearPets.ZIndex=5
-
-Instance.new("UICorner",ClearPets).CornerRadius=UDim.new(0,8)
-
-local ClearStroke=Instance.new("UIStroke",ClearPets)
-ClearStroke.Color=PURPLE
-ClearStroke.Transparency=.5
-
---// DRAWER
-
-local Drawer=Instance.new("Frame",Content)
-
--- Drawer is kept inside Content.
-local DrawerOpenPosition=UDim2.new(1,-225,0,48)
-local DrawerClosedPosition=UDim2.new(1,5,0,48)
-
-Drawer.Size=UDim2.fromOffset(215,165)
-Drawer.Position=DrawerClosedPosition
-Drawer.BackgroundColor3=PANEL
+local Drawer=Instance.new("Frame")
+Drawer.Size=UDim2.fromOffset(150,174)
+Drawer.Position=UDim2.new(1,150,0,0)
+Drawer.BackgroundColor3=PANEL2
 Drawer.BorderSizePixel=0
-Drawer.Visible=false
-Drawer.ZIndex=10
+Drawer.ZIndex=20
 Drawer.ClipsDescendants=true
+Drawer.Parent=Body
+Corner(Drawer,10)
 
-Instance.new("UICorner",Drawer).CornerRadius=UDim.new(0,10)
+local DT=Instance.new("TextLabel")
+DT.Position=UDim2.fromOffset(12,7)
+DT.Size=UDim2.new(1,-40,0,20)
+DT.BackgroundTransparency=1
+DT.Text="Select Theme"
+DT.TextColor3=WHITE
+DT.TextSize=12
+DT.Font=Enum.Font.GothamBold
+DT.TextXAlignment=Enum.TextXAlignment.Left
+DT.ZIndex=21
+DT.Parent=Drawer
 
-local DrawerStroke=Instance.new("UIStroke",Drawer)
-DrawerStroke.Color=PURPLE
-DrawerStroke.Transparency=.35
+local DC=Instance.new("TextButton")
+DC.Size=UDim2.fromOffset(24,24)
+DC.Position=UDim2.new(1,-30,0,5)
+DC.BackgroundColor3=PANEL
+DC.BorderSizePixel=0
+DC.Text="×"
+DC.TextColor3=WHITE
+DC.TextSize=15
+DC.Font=Enum.Font.GothamBold
+DC.AutoButtonColor=false
+DC.ZIndex=21
+DC.Parent=Drawer
+Corner(DC,7)
 
---// DRAWER TITLE
+local TB={}
+local ThemeNames={"Classic","Red","Blue","GrayBlack"}
+local ThemeLabels={Classic="🟣 Classic",Red="🔴 Red",Blue="🔵 Blue",GrayBlack="⚫ Gray × Black"}
 
-local DrawerTitle=Instance.new("TextLabel",Drawer)
-DrawerTitle.Size=UDim2.new(1,-45,0,20)
-DrawerTitle.Position=UDim2.fromOffset(10,7)
-DrawerTitle.BackgroundTransparency=1
-DrawerTitle.Text="Select Pets"
-DrawerTitle.TextColor3=TEXT
-DrawerTitle.TextSize=11
-DrawerTitle.Font=Enum.Font.GothamSemibold
-DrawerTitle.TextXAlignment=Enum.TextXAlignment.Left
-DrawerTitle.ZIndex=11
-
-local DrawerClose=Instance.new("TextButton",Drawer)
-DrawerClose.Size=UDim2.fromOffset(24,24)
-DrawerClose.Position=UDim2.new(1,-30,0,5)
-DrawerClose.BackgroundTransparency=1
-DrawerClose.Text="×"
-DrawerClose.TextColor3=SUB
-DrawerClose.TextSize=17
-DrawerClose.Font=Enum.Font.Gotham
-DrawerClose.AutoButtonColor=false
-DrawerClose.ZIndex=11
-
---// DRAWER BLANK AREA
-
-local DrawerBlank=Instance.new("TextLabel",Drawer)
-DrawerBlank.Size=UDim2.new(1,-20,1,-38)
-DrawerBlank.Position=UDim2.fromOffset(10,34)
-DrawerBlank.BackgroundTransparency=1
-DrawerBlank.Text=""
-DrawerBlank.ZIndex=11
-
---// DRAWER STATE
-
-local DrawerOpen=false
-local DrawerTweening=false
-
-local DrawerTweenInfo=TweenInfo.new(
-.22,
-Enum.EasingStyle.Quad,
-Enum.EasingDirection.Out
-)
-
---// OPEN
-
-local function OpenDrawer()
-
-if DrawerTweening or DrawerOpen then
-return
+for i,n in ipairs(ThemeNames)do
+local b=Instance.new("TextButton")
+b.Size=UDim2.new(1,-20,0,29)
+b.Position=UDim2.fromOffset(10,32+(i-1)*34)
+b.BackgroundColor3=PANEL
+b.BorderSizePixel=0
+b.Text=ThemeLabels[n]
+b.TextColor3=WHITE
+b.TextSize=9
+b.Font=Enum.Font.GothamSemibold
+b.AutoButtonColor=false
+b.ZIndex=21
+b.Parent=Drawer
+Corner(b,8)
+TB[n]=b
 end
 
-DrawerTweening=true
-DrawerOpen=true
+local MiniN=Instance.new("TextButton")
+MiniN.Size=UDim2.fromOffset(32,32)
+MiniN.Position=UDim2.new(.5,-16,0,6)
+MiniN.BackgroundColor3=PURPLE
+MiniN.BorderSizePixel=0
+MiniN.Text="N"
+MiniN.TextColor3=WHITE
+MiniN.TextSize=14
+MiniN.Font=Enum.Font.GothamBlack
+MiniN.AutoButtonColor=false
+MiniN.Visible=false
+MiniN.Parent=Gui
+Corner(MiniN,9)
 
-Drawer.Visible=true
+local NS=Instance.new("UIStroke")
+NS.Color=PURPLE2
+NS.Transparency=.1
+NS.Parent=MiniN
 
--- Start outside.
-Drawer.Position=DrawerClosedPosition
+local function ApplyTheme(n)
+local t=Themes[n]
+if not t then return end
 
--- Select Pets shrinks to the free space.
-TweenService:Create(
-SelectPets,
-DrawerTweenInfo,
-{
-Size=SelectOpenSize
-}
-):Play()
+Theme=n
+PURPLE,PURPLE2,BG,PANEL,PANEL2,DARK=t.P,t.P2,t.B,t.C,t.C2,t.D
 
--- Short text so it doesn't get covered.
-SelectPets.Text="Pets"
+Main.BackgroundColor3=BG
+MS.Color=PURPLE2
+Logo.BackgroundColor3=PURPLE
+LS.Color=PURPLE2
+Side.BackgroundColor3=PANEL
+Content.BackgroundColor3=PANEL
+Content.ScrollBarImageColor3=PURPLE
+Mini.BackgroundColor3=PANEL2
+Close.BackgroundColor3=PANEL2
+ThemeOpen.BackgroundColor3=PANEL
+ThemeOpen.TextColor3=PURPLE2
+Drawer.BackgroundColor3=PANEL2
+DC.BackgroundColor3=PANEL
+MiniN.BackgroundColor3=PURPLE
+NS.Color=PURPLE2
 
-local DrawerTween=TweenService:Create(
-Drawer,
-DrawerTweenInfo,
-{
-Position=DrawerOpenPosition
-}
-)
+for _,o in ipairs(Pages.Misc:GetChildren())do
+if o:IsA("Frame")then
+o.BackgroundColor3=PANEL2
+for _,x in ipairs(o:GetChildren())do
+if x:IsA("TextButton")then
+x.BackgroundColor3=x.Text=="" and OFF or PANEL
+elseif x:IsA("Frame") and x.BackgroundColor3~=WHITE then
+x.BackgroundColor3=PANEL2
+end
+end
+end
+end
 
-DrawerTween:Play()
+for _,o in ipairs(Pages.Main:GetChildren())do
+if o:IsA("Frame")then
+o.BackgroundColor3=PANEL2
+for _,x in ipairs(o:GetChildren())do
+if x:IsA("Frame")then
+x.BackgroundColor3=x.Size.Y.Offset<=12 and DARK or PURPLE
+elseif x:IsA("TextLabel") and x.Text~="Movement"then
+x.TextColor3=PURPLE2
+end
+end
+end
+end
 
-DrawerTween.Completed:Connect(function()
-DrawerTweening=false
-end)
+for _,b in pairs(TB)do b.BackgroundColor3=PANEL end
+TB[n].BackgroundColor3=PURPLE
+
+for _,b in pairs(Tabs)do
+local name=b.Name:gsub("Tab$","")
+if not Locked[name]then
+b.BackgroundColor3=Pages[name].Visible and PURPLE or PANEL
+b.TextColor3=Pages[name].Visible and WHITE or GRAY
+end
+end
 
 end
 
---// CLOSE
-
-local function CloseDrawer()
-
-if DrawerTweening or not DrawerOpen then
-return
-end
-
-DrawerTweening=true
+for n,b in pairs(TB)do
+b.MouseButton1Click:Connect(function()
+ApplyTheme(n)
 DrawerOpen=false
-
--- Restore original button.
-TweenService:Create(
-SelectPets,
-DrawerTweenInfo,
-{
-Size=SelectClosedSize
-}
-):Play()
-
-SelectPets.Text="Select Pets"
-
--- Slide drawer back out.
-local DrawerTween=TweenService:Create(
-Drawer,
-DrawerTweenInfo,
-{
-Position=DrawerClosedPosition
-}
-)
-
-DrawerTween:Play()
-
-DrawerTween.Completed:Connect(function()
-
-DrawerTweening=false
-
-if not DrawerOpen then
-Drawer.Visible=false
+Tween(Drawer,.3,{Position=UDim2.new(1,-150,0,0)},Enum.EasingStyle.Quint):Play()
+Tween(ThemeOpen,.18,{Rotation=0}):Play()
+end)
 end
 
+ThemeOpen.MouseButton1Click:Connect(function()
+if Minimized then return end
+DrawerOpen=not DrawerOpen
+Tween(Drawer,.3,{Position=DrawerOpen and UDim2.new(1,-150,0,0) or UDim2.new(1,150,0,0)},Enum.EasingStyle.Quint):Play()
+Tween(ThemeOpen,.18,{Rotation=DrawerOpen and 180 or 0}):Play()
 end)
 
-end
-
---// SELECT PETS TOGGLE
-
-SelectPets.MouseButton1Click:Connect(function()
-
-if DrawerOpen then
-CloseDrawer()
-else
-OpenDrawer()
-end
-
-end)
-
---// DRAWER CLOSE BUTTON
-
-DrawerClose.MouseButton1Click:Connect(function()
-CloseDrawer()
-end)
-
---// REFRESH BUTTON
-
-RefreshPets.MouseButton1Click:Connect(function()
-
-RefreshPets.Text="Refreshed!"
-
-task.delay(.7,function()
-
-if RefreshPets and RefreshPets.Parent then
-RefreshPets.Text="Refresh Selected Pets"
-end
-
-end)
-
-end)
-
---// CLEAR BUTTON
-
-ClearPets.MouseButton1Click:Connect(function()
-
-ClearPets.Text="Cleared!"
-
-task.delay(.7,function()
-
-if ClearPets and ClearPets.Parent then
-ClearPets.Text="Clear"
-end
-
-end)
-
-end)
-
---// PAGE MESSAGE
-
-local Message=Instance.new("TextLabel",Content)
-Message.Size=UDim2.new(1,-30,0,90)
-Message.Position=UDim2.new(0,15,.5,-30)
-Message.BackgroundTransparency=1
-Message.Text="Coming Soon"
-Message.TextColor3=TEXT
-Message.TextSize=14
-Message.Font=Enum.Font.GothamBold
-Message.TextWrapped=true
-Message.TextXAlignment=Enum.TextXAlignment.Center
-Message.TextYAlignment=Enum.TextYAlignment.Center
-Message.Visible=false
-
---// PAGES
-
-local Pages={
-"Main",
-"Automation",
-"Plants",
-"Pets",
-"Eggs",
-"Loadouts",
-"Misc"
-}
-
-local function ShowPage(Name)
-
-for _,Object in ipairs(MainObjects) do
-Object.Visible=Name=="Main"
-end
-
-SelectPets.Visible=Name=="Automation"
-RefreshPets.Visible=Name=="Automation"
-ClearPets.Visible=Name=="Automation"
-
-Message.Visible=false
-
-if Name~="Automation" then
-
+DC.MouseButton1Click:Connect(function()
 DrawerOpen=false
-DrawerTweening=false
-Drawer.Visible=false
-Drawer.Position=DrawerClosedPosition
-
-SelectPets.Size=SelectClosedSize
-SelectPets.Position=SelectClosedPosition
-SelectPets.Text="Select Pets"
-
-end
-
-end
-
-local function PageButton(Name,Order)
-
-local Button=Instance.new("TextButton",Side)
-Button.Size=UDim2.new(1,-10,0,25)
-Button.BackgroundColor3=PANEL
-Button.Text=Name
-Button.TextColor3=SUB
-Button.TextSize=9
-Button.Font=Enum.Font.GothamMedium
-Button.AutoButtonColor=false
-Button.LayoutOrder=Order
-
-Instance.new("UICorner",Button).CornerRadius=UDim.new(0,6)
-
-Button.MouseButton1Click:Connect(function()
-
-PageTitle.Text=Name
-
-for _,Object in ipairs(Side:GetChildren()) do
-
-if Object:IsA("TextButton") then      
-	Object.BackgroundColor3=PANEL      
-	Object.TextColor3=SUB      
-end
-
-end
-
-Button.BackgroundColor3=PURPLE
-Button.TextColor3=Color3.new(1,1,1)
-
-ShowPage(Name)
-
+Tween(Drawer,.3,{Position=UDim2.new(1,150,0,0)},Enum.EasingStyle.Quint):Play()
+Tween(ThemeOpen,.18,{Rotation=0}):Play()
 end)
-
-end
-
-for Index,Name in ipairs(Pages) do
-PageButton(Name,Index)
-end
-
-local First=Side:FindFirstChild("Main")
-
-if First then
-First.BackgroundColor3=PURPLE
-First.TextColor3=Color3.new(1,1,1)
-end
-
-ShowPage("Main")
-
---// DRAG
 
 local Dragging=false
-local DragStart
-local StartPosition
+local Start,Pos
 
-Top.InputBegan:Connect(function(Input)
-
-if Input.UserInputType==Enum.UserInputType.MouseButton1
-or Input.UserInputType==Enum.UserInputType.Touch then
-
+Drag.InputBegan:Connect(function(i)
+if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
 Dragging=true
-DragStart=Input.Position
-StartPosition=Window.Position
-
+Start=i.Position
+Pos=Main.Position
 end
-
 end)
 
-UserInputService.InputChanged:Connect(function(Input)
-
-if Dragging and (
-Input.UserInputType==Enum.UserInputType.MouseMovement
-or Input.UserInputType==Enum.UserInputType.Touch
-) then
-
-local Delta=Input.Position-DragStart
-
-Window.Position=UDim2.new(
-StartPosition.X.Scale,
-StartPosition.X.Offset+Delta.X,
-StartPosition.Y.Scale,
-StartPosition.Y.Offset+Delta.Y
-)
-
-end
-
+Drag.InputEnded:Connect(function(i)
+if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then Dragging=false end
 end)
 
-UserInputService.InputEnded:Connect(function(Input)
-
-if Input.UserInputType==Enum.UserInputType.MouseButton1
-or Input.UserInputType==Enum.UserInputType.Touch then
-
-Dragging=false
-
+UIS.InputChanged:Connect(function(i)
+if Dragging and(i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch)then
+local d=i.Position-Start
+Main.Position=UDim2.new(Pos.X.Scale,Pos.X.Offset+d.X,Pos.Y.Scale,Pos.Y.Offset+d.Y)
 end
-
 end)
 
---// MINIMIZE
-
-local Minimized=false
-
-Min.MouseButton1Click:Connect(function()
-
-Minimized=not Minimized
-
-if Minimized then
-
-Window.Size=UDim2.fromOffset(420,43)
-Side.Visible=false
-Content.Visible=false
-
-else
-
-Window.Size=UDim2.fromOffset(420,270)
-Side.Visible=true
-Content.Visible=true
-
+local function Hover(b,on,off)
+b.MouseEnter:Connect(function()Tween(b,.15,{BackgroundColor3=on}):Play()end)
+b.MouseLeave:Connect(function()Tween(b,.15,{BackgroundColor3=off}):Play()end)
 end
 
+Hover(Mini,Color3.fromRGB(45,40,65),PANEL2)
+Hover(Close,Color3.fromRGB(55,35,45),PANEL2)
+Hover(DC,Color3.fromRGB(45,40,65),PANEL)
+Hover(MiniN,PURPLE2,PURPLE)
+
+Mini.MouseButton1Click:Connect(function()
+if Minimized then return end
+Minimized=true
+DrawerOpen=false
+Tween(Drawer,.2,{Position=UDim2.new(1,150,0,0)}):Play()
+Tween(Main,.35,{Size=UDim2.fromOffset(32,32),Position=UDim2.new(.5,-16,0,6)},Enum.EasingStyle.Back):Play()
+task.delay(.08,function()
+Header.Visible=false
+Body.Visible=false
+MiniN.Visible=true
+MiniN.Size=UDim2.fromOffset(8,8)
+Tween(MiniN,.28,{Size=UDim2.fromOffset(32,32)},Enum.EasingStyle.Back):Play()
+end)
 end)
 
---// CLOSE
+MiniN.MouseButton1Click:Connect(function()
+if not Minimized then return end
+Minimized=false
+Tween(MiniN,.18,{Size=UDim2.fromOffset(8,8)},Enum.EasingStyle.Back):Play()
+task.delay(.1,function()
+MiniN.Visible=false
+Header.Visible=true
+Body.Visible=true
+Main.Size=UDim2.fromOffset(32,32)
+Main.Position=UDim2.new(.5,-16,0,6)
+Tween(Main,.4,{Size=UDim2.fromOffset(W,H),Position=UDim2.new(.5,-W/2,.5,-H/2)},Enum.EasingStyle.Back):Play()
+end)
+end)
 
 Close.MouseButton1Click:Connect(function()
+Tween(Main,.3,{Size=UDim2.fromOffset(10,10)},Enum.EasingStyle.Back):Play()
+Tween(Main,.2,{BackgroundTransparency=1}):Play()
+task.wait(.3)
 Gui:Destroy()
 end)
 
---// HIDE
-
-UserInputService.InputBegan:Connect(function(Input,Processed)
-
-if not Processed and Input.KeyCode==Enum.KeyCode.H then
-Window.Visible=not Window.Visible
-end
-
-end)
-
---// RESPAWN
-
-Player.CharacterAdded:Connect(function(Character)
-
-local H=Character:WaitForChild("Humanoid",5)
-
-if H then
-
+LP.CharacterAdded:Connect(function(c)
+local h=c:WaitForChild("Humanoid")
 task.wait(.1)
-
-H.WalkSpeed=SpeedValue
-H.UseJumpPower=true
-H.JumpPower=JumpValue
-
-end
-
+h.WalkSpeed=Speed
+h.JumpPower=Jump
 end)
 
-end
+ApplyTheme("Classic")
 
---// LOADING
-
-task.spawn(function()
-
-for i=0,100 do
-
-LFill.Size=UDim2.new(i/100,0,1,0)
-LPct.Text=i.."%"
-
-task.wait(.025)
-
-end
-
-task.wait(.4)
-
-TweenService:Create(LP,TweenInfo.new(.3),{
-BackgroundTransparency=1
-}):Play()
-
-TweenService:Create(LS,TweenInfo.new(.3),{
-Transparency=1
-}):Play()
-
-TweenService:Create(LT,TweenInfo.new(.3),{
-TextTransparency=1
-}):Play()
-
-TweenService:Create(LPct,TweenInfo.new(.3),{
-TextTransparency=1
-}):Play()
-
-TweenService:Create(LTrack,TweenInfo.new(.3),{
-BackgroundTransparency=1
-}):Play()
-
-TweenService:Create(LFill,TweenInfo.new(.3),{
-BackgroundTransparency=1
-}):Play()
-
-task.wait(.35)
-
-LG:Destroy()
-CreateUI()
-
-end)
+Main.Size=UDim2.fromOffset(10,10)
+Main.BackgroundTransparency=1
+task.wait(.05)
+Tween(Main,.45,{Size=UDim2.fromOffset(W,H),BackgroundTransparency=0},Enum.EasingStyle.Back):Play()
